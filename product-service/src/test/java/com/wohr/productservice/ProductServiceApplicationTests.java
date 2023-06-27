@@ -1,6 +1,5 @@
 package com.wohr.productservice;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wohr.productservice.dto.ProductRequest;
 import com.wohr.productservice.repository.ProductRepository;
