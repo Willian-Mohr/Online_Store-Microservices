@@ -3,6 +3,7 @@ package com.wohr.orderservice.service;
 import com.wohr.orderservice.dto.InventoryResponse;
 import com.wohr.orderservice.dto.OrderLineItemsDto;
 import com.wohr.orderservice.dto.OrderRequest;
+import com.wohr.orderservice.event.OrderPlacedEvent;
 import com.wohr.orderservice.model.Order;
 import com.wohr.orderservice.model.OrderLineItems;
 import com.wohr.orderservice.repository.OrderRepository;
@@ -10,6 +11,7 @@ import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,6 +29,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClientBuilder;
     private final Tracer tracer;
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
     public String placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
@@ -60,6 +63,7 @@ public class OrderService {
 
             if (allProductsInStock) {
                 orderRepository.save(order);
+                kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber()));
                 return "Order Placed Successfully";
             } else {
                 throw new IllegalArgumentException("Product is not in stock, please try again later");
