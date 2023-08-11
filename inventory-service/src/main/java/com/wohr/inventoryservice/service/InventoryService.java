@@ -19,7 +19,7 @@ public class InventoryService {
     @SneakyThrows
     public List<InventoryResponse> isInStock(List<String> skuCode) {
 
-        Thread.sleep(10000);
+//        Thread.sleep(10000);
 
         return inventoryRepository.findBySkuCodeIn(skuCode).stream()
                 .map(inventory ->
